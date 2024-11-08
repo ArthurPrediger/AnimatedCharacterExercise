@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AnimationController : MonoBehaviour
 {
     private Animator ani;
     private bool crouching = false;
-
-    private Vector3 initialPosition;
+    private bool walking = false;
 
     // Start is called before the first frame update
     void Start()
@@ -18,19 +18,50 @@ public class AnimationController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        var aniState = ani.GetCurrentAnimatorStateInfo(0);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (!walking)
         {
-            ani.SetTrigger("backFlip");
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                ani.SetTrigger("backFlip");
+            }
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                crouching = !crouching;
+                ani.SetBool("crouching", crouching);
+            }
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                ani.SetTrigger("jumpOver");
+            }
+
+            if (aniState.IsName("JumpOver") && aniState.normalizedTime < 0.95f)
+            {
+                transform.position += 3f * Time.deltaTime * transform.forward;
+            }
         }
-        if (Input.GetKeyDown(KeyCode.C))
+
+        Vector3 moveDir = Vector3.zero;
+
+        if (Input.GetKey(KeyCode.UpArrow))
+            moveDir.z += 1;
+        if (Input.GetKey(KeyCode.DownArrow))
+            moveDir.z -= 1;
+        if (Input.GetKey(KeyCode.RightArrow))
+            moveDir.x += 1;
+        if (Input.GetKey(KeyCode.LeftArrow))
+            moveDir.x -= 1;
+
+        walking = false;
+        if(moveDir.sqrMagnitude > 0.0001f && !crouching && !aniState.IsName("JumpOver") && !aniState.IsName("Backflip"))
         {
-            crouching = !crouching;
-            ani.SetBool("crouching", crouching);
+            moveDir.Normalize();
+            transform.forward = moveDir;
+            transform.position += 2f * Time.deltaTime * moveDir;
+            walking = true;
         }
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            ani.SetTrigger("dodge");
-        }
+
+        ani.SetBool("walking", walking);
     }
 }
