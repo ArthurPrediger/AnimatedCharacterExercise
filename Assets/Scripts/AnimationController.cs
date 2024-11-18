@@ -8,6 +8,11 @@ public class AnimationController : MonoBehaviour
     private Animator ani;
     private bool crouching = false;
     private bool walking = false;
+    private Vector3 curMoveDir = Vector3.zero;
+
+    public Transform camTrans;
+    private float smoothTurnVelocity;
+    public float smoothTurnTime = 0.1f;
 
     // Start is called before the first frame update
     void Start()
@@ -57,8 +62,18 @@ public class AnimationController : MonoBehaviour
         if(moveDir.sqrMagnitude > 0.0001f && !crouching && !aniState.IsName("JumpOver") && !aniState.IsName("Backflip"))
         {
             moveDir.Normalize();
-            transform.forward = moveDir;
-            transform.position += 2f * Time.deltaTime * moveDir;
+            //curMoveDir = Vector3.MoveTowards(curMoveDir, moveDir, Time.deltaTime * 2f);
+            //transform.forward = curMoveDir;
+            //transform.position += 2f * Time.deltaTime * curMoveDir;
+
+            float targetAngle = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg + camTrans.eulerAngles.y;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref smoothTurnVelocity, smoothTurnTime);
+
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+            curMoveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+            transform.position += 2f * Time.deltaTime * curMoveDir;
+
             walking = true;
         }
 

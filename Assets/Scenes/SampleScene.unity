@@ -437,6 +437,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b86b710c83868d40b41b19784ccb626, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  camTrans: {fileID: 963194228}
+  smoothTurnTime: 0.15
 --- !u!1 &1975132048
 GameObject:
   m_ObjectHideFlags: 0
