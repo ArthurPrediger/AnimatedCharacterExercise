@@ -78,5 +78,10 @@ public class AnimationController : MonoBehaviour
         }
 
         ani.SetBool("walking", walking);
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 }
